@@ -1,6 +1,8 @@
 pipeline {
     environment {
         registry = "ademola/devops-capstone"
+        ECRURI = "020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
+        ECRURL = "https://020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
         registryCredential = "docker-hub"
     }
 
@@ -24,7 +26,7 @@ pipeline {
         stage('Deploy Image') {
             steps {
                 script {
-                    withDockerRegistry([ credetialsId: "docker-hub", url: ""]) {
+                    withDockerRegistry(ECRURI, ECRURL) {
                     sh ' docker push ademola/devops-capstone'
                     }
                     
