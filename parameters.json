@@ -1,0 +1,34 @@
+[
+    {
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "DevOps Capstone"
+    },
+    {
+        "ParameterKey": "VpcCIDR",
+        "ParameterValue": "172.32.0.0/16"
+    },
+    {
+        "ParameterKey": "Subnet1CIDR",
+        "ParameterValue": "172.32.0.0/24"
+    },
+    {
+        "ParameterKey": "Subnet2CIDR",
+        "ParameterValue": "172.32.1.0/24"
+    },
+    {
+        "ParameterKey": "Subnet3CIDR",
+        "ParameterValue": "172.32.2.0/24"
+    },
+    {
+        "ParameterKey": "ClusterName",
+        "ParameterValue": "devops-cluster"
+    },
+    {
+        "ParameterKey": "NodeGroupName",
+        "ParameterValue": "devops-ng"
+    },
+    {
+        "ParameterKey": "KeyName",
+        "ParameterValue": "devops-capstone"
+    }
+]
