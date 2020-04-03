@@ -18,7 +18,6 @@ pipeline {
             steps {
                 script {
                     sh 'docker build --tag=ademola/devops-capstone .'
-                    sh 'docker tag ademola/devops-capstone:latest 020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone:latest'
                 }
             }
         }
