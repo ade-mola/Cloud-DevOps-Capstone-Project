@@ -1,9 +1,8 @@
 pipeline {
     environment {
-        PROJECT = "ademola/devops-capstone"
-            ECRURI = "020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
-            ECRURL = "https://020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
-            ECRCRED = "ecr:us-east-2:devops-credentials"
+        registry = "ademola/devops-capstone"
+        registryCredential = "docker-credential"
+            
     }
 
     agent any
@@ -19,6 +18,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker build --tag=ademola/devops-capstone .'
+                    sh 'docker tag ademola/devops-capstone:latest 020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone:latest'
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
         stage('Deploy Image') {
             steps {
                 script {
-                    withDockerRegistry(ECRURL, ECRCRED) {
+                    withDockerRegistry([ credentialsId = "docker-credential", url = ""]) {
                     sh ' docker push ademola/devops-capstone'
                     }
                     
@@ -34,13 +34,44 @@ pipeline {
             }
         }
 
-        stage ('Rolling deployment to AWS') {
+        stage ('Upload latest green deployment to AWS Loadbalancer') {
             steps {
                script {
-                    withAWS(credentials: 'devops-credentials', region: 'us-east-2'){
-                    sh "aws eks --region us-east-2 update-kubeconfig --name devops-project"
-                    sh 'kubectl apply -f rolling.yml'
+                    withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
+                   // Latest
+                   sh "aws eks --region us-east-2 update-kubeconfig --name devops-cluster"
+                   sh 'kubectl apply -f green.yml'
                   }
+               }
+            }
+        }
+
+        stage ('Remove old blue deployment from AWS Loadbalancer') {
+            steps {
+               script {
+                withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
+                   sh 'kubectl delete blue-deployment'
+               }
+               }
+            }
+        }
+
+        stage ('Add latest blue deployment to AWS Loadbalancer') {
+            steps {
+               script {
+                   withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
+                   sh 'kubectl apply -f blue.yml'
+                   }
+               }
+            }
+        }
+
+        stage ('Remove old green deployment from AWS Loadbalancer') {
+            steps {
+               script {
+                   withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
+                   sh 'kubectl delete green-deployment'
+                   }
                }
             }
         }

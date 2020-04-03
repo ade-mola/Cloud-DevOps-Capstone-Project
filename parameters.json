@@ -24,8 +24,8 @@
         "ParameterValue": "devops-cluster"
     },
     {
-        "ParameterKey": "NodeGroupName",
-        "ParameterValue": "devops-ng"
+        "ParameterKey": "DesiredInstances",
+        "ParameterValue": "3"
     },
     {
         "ParameterKey": "KeyName",

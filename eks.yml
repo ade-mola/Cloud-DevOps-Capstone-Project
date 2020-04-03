@@ -1,6 +1,6 @@
 Description: >
   'Ademola Olokun | Amazon EKS Script'
-  'This template deploys VPC, subnets and security group for EKS Cluster'
+  'This template deploys VPC, subnets and security group for EKS Cluster and Worker Nodes'
 
 Parameters:
 
@@ -32,9 +32,9 @@ Parameters:
     Description: EKS Cluster Name
     Type: String
 
-  NodeGroupName:
-    Description: EKS node group name
-    Type: String
+  DesiredInstances:
+    Description: How many instances should be created.
+    Type: Number
 
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instances
@@ -137,8 +137,22 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: ClusterSecGroup
-      GroupDescription: Allow cluster communication with worker nodes
+      GroupDescription: Security Group for EKS Cluster
       VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
 
 # EKS Cluster Configuration
 
@@ -173,8 +187,15 @@ Resources:
         SubnetIds: [!Ref Subnet1, !Ref Subnet2, !Ref Subnet3]
       Name: !Ref ClusterName
 
-# Node Configuration
+# Worker Nodes Configuration
 
+  NodeInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles: #required
+        - !Ref WorkerNodeRole
+  
   WorkerNodeRole:
     Type: AWS::IAM::Role
     Properties:
@@ -193,27 +214,107 @@ Resources:
         - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
         - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 
-  EKSNodeGrp:
-    Type: "AWS::EKS::Nodegroup"
-    DependsOn: EKSCluster
+  NodesSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      ScalingConfig:
-        DesiredSize: 2
-        MinSize: 1
-        MaxSize: 3
-      Subnets: [!Ref Subnet1, !Ref Subnet2, !Ref Subnet3]
-      NodeRole: !GetAtt WorkerNodeRole.Arn 
-      RemoteAccess:
-        Ec2SshKey: !Ref KeyName
-      ClusterName: !Ref ClusterName
-      InstanceTypes:
-        - t2.micro
+      GroupDescription: Security group for the nodes.
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: !Sub "kubernetes.io/cluster/${ClusterName}"
+        Value: 'owned'
+
+  NodesAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      DesiredCapacity: !Sub ${DesiredInstances}
+      LaunchConfigurationName: !Ref NodeLaunchConfiguration
+      MinSize: "1"
+      MaxSize: "3"
+      VPCZoneIdentifier:
+        - Ref: "Subnet1"
+        - Ref: "Subnet2"
+        - Ref: "Subnet3"
+      Tags:
+      - Key: Name
+        Value: !Sub ${ClusterName}-Node
+        PropagateAtLaunch: true
+      - Key: !Sub "kubernetes.io/cluster/${ClusterName}"
+        Value: 'owned'
+        PropagateAtLaunch: true
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 1
+        MinInstancesInService: !Ref DesiredInstances
+        PauseTime: PT5M
+
+  NodeLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      AssociatePublicIpAddress: true
+      IamInstanceProfile: !Ref NodeInstanceProfile
+      ImageId: ami-0fc20dd1da406780b
+      InstanceType: t3.medium
+      KeyName: !Ref KeyName
+      SecurityGroups:
+      - !Ref NodesSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 10
+            VolumeType: gp2
+            DeleteOnTermination: true
+      UserData:
+        Fn::Base64:
+          !Sub |
+                #!/bin/bash
+                set -o xtrace
+                /etc/eks/bootstrap.sh ${ClusterName}
+                /opt/aws/bin/cfn-signal --exit-code $? \
+                         --stack  ${AWS::StackName} \
+                         --resource NodesAutoScalingGroup  \
+                         --region ${AWS::Region}
+
+# Outputs
 
 Outputs:
 
   VpcId:
     Description: The VPC Id
     Value: !Ref VPC
+
+  SubnetIds:
+    Description: The subnet ids.
+    Value: !Join [ ",", [ !Ref Subnet1, !Ref Subnet2, !Ref Subnet3 ] ]
+
+  SecurityGroup:
+    Description: Cluster security group.
+    Value: !Ref ClusterSecurityGroup
 
   EKS:
     Description: EKS Cluster
