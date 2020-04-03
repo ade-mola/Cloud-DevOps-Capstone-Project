@@ -1,9 +1,9 @@
 pipeline {
     environment {
-        registry = "ademola/devops-capstone"
-        ECRURI = "020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
-        ECRURL = "https://020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
-        ECRCRED = "devops-credentials"
+        PROJECT = "ademola/devops-capstone"
+            ECRURI = "020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
+            ECRURL = "https://020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone"
+            ECRCRED = "ecr:us-east-2:devops-credentials"
     }
 
     agent any
