@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: devops-capstone
-          image: ademola/devops-capstone1:v2
+          image: ademola/devops-capstone:v1     # to roll out a new deployment, change the docker image here
           imagePullPolicy: Always
           ports:
             - containerPort: 80
