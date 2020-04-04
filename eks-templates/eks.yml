@@ -214,6 +214,25 @@ Resources:
         - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
         - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 
+  WorkerNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    DependsOn: EKSCluster
+    Properties:
+      ClusterName: !Ref ClusterName
+      NodeRole: !GetAtt WorkerNodeRole.Arn
+      InstanceTypes:
+        - t2.micro
+      RemoteAccess:
+        Ec2SshKey: !Ref KeyName
+      Subnets:
+        - !Ref Subnet1
+        - !Ref Subnet2
+        - !Ref Subnet3
+      ScalingConfig:
+        DesiredSize: !Sub ${DesiredInstances}
+        MinSize: 1
+        MaxSize: 3
+
   NodesSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -323,11 +342,3 @@ Outputs:
   EKSUrl:
     Description: EKS URL
     Value: !GetAtt EKSCluster.Endpoint
-  
-
-
-  
-      
-  
-
-  
