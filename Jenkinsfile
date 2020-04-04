@@ -40,6 +40,7 @@ pipeline {
                     withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
                    // Latest
                    sh "aws eks --region us-east-2 update-kubeconfig --name devops-cluster"
+                   sh "kubectl apply -f aws-auth.yml"
                    sh 'kubectl apply -f rolling.yml'
                   }
                }
