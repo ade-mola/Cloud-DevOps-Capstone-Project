@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
-                    sh ' docker push ademola/devops-capstone'
+                    sh ' docker push ademola/devops-capstone:v2'
                     }
                     
                 }
