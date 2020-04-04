@@ -41,7 +41,6 @@ pipeline {
                    // Latest
                    sh "aws eks --region us-east-2 update-kubeconfig --name devops-cluster"
                    sh "kubectl apply -f eks-templates/aws-auth.yml"
-                   sh "kubectl run devops-cluster --image=ademola/devops-cluster:latest --port=80"
                    sh 'kubectl apply -f rolling.yml'
                   }
                }
