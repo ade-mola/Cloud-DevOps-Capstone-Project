@@ -20,7 +20,7 @@ spec:
   selector:
     matchLabels:
       app: capstone-app
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
