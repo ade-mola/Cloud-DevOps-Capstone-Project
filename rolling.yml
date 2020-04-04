@@ -38,3 +38,4 @@ spec:
     rollingUpdate:
       maxUnavailable: 25%
       maxSurge: 25%
+    minReadySeconds: 10
