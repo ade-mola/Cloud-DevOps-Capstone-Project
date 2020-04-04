@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Deploy Image') {
+        stage('Push Image') {
             steps {
                 script {
                     withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
@@ -34,44 +34,14 @@ pipeline {
             }
         }
 
-        stage ('Upload latest green deployment to AWS Loadbalancer') {
+        stage ('Deploy Clusters with Rolling Strategy') {
             steps {
                script {
                     withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
                    // Latest
                    sh "aws eks --region us-east-2 update-kubeconfig --name devops-cluster"
-                   sh 'kubectl apply -f green.yml'
+                   sh 'kubectl apply -f rolling.yml'
                   }
-               }
-            }
-        }
-
-        stage ('Remove old blue deployment from AWS Loadbalancer') {
-            steps {
-               script {
-                withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
-                   sh 'kubectl delete blue-deployment'
-               }
-               }
-            }
-        }
-
-        stage ('Add latest blue deployment to AWS Loadbalancer') {
-            steps {
-               script {
-                   withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
-                   sh 'kubectl apply -f blue.yml'
-                   }
-               }
-            }
-        }
-
-        stage ('Remove old green deployment from AWS Loadbalancer') {
-            steps {
-               script {
-                   withAWS(credentials: 'ecr-credentials', region: 'us-east-2'){
-                   sh 'kubectl delete green-deployment'
-                   }
                }
             }
         }
