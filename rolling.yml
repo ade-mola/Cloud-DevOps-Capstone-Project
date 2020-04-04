@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: devops-capstone
-          image: ademola/devops-capstone:v2
+          image: ademola/devops-capstone1:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
