@@ -17,7 +17,7 @@ pipeline {
         stage('Building Image') {
             steps {
                 script {
-                    sh 'docker build --tag=ademola/devops-capstone1 .'
+                    sh 'docker build --tag=ademola/devops-capstone1:v2 .'
 
                 }
             }
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
-                    sh ' docker push ademola/devops-capstone1'
+                    sh ' docker push ademola/devops-capstone1:v2'
                     }
                     
                 }
