@@ -17,7 +17,7 @@ pipeline {
         stage('Building Image') {
             steps {
                 script {
-                    sh 'docker build --tag=ademola/devops-capstone .'
+                    sh 'docker build --tag=ademola/devops-capstone:v2 .'
 
                 }
             }
