@@ -1,7 +1,10 @@
 pipeline {
     environment {
-        registry = "ademola/devops-capstone"
-        registryCredential = "docker-credential"
+        PROJECT = "ademola/devops-capstone"
+        IMAGE = $PROJECT
+        ECRURL = "https://020483229178.dkr.ecr.us-east-2.amazonaws.com/$PROJECT"
+        ECRURI = "020483229178.dkr.ecr.us-east-2.amazonaws.com/$PROJECT"
+        ECRCRED = 'ecr:us-east-2:ecr-credentials'
             
     }
 
@@ -18,6 +21,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker build --tag=ademola/devops-capstone .'
+                    sh 'docker tag ademola/devops-capstone:latest 020483229178.dkr.ecr.us-east-2.amazonaws.com/ademola/devops-capstone:latest'
                 }
             }
         }
@@ -25,7 +29,7 @@ pipeline {
         stage('Deploy Image') {
             steps {
                 script {
-                    withDockerRegistry([ credentialsId = "docker-credential", url = ""]) {
+                    withRegistry(ECRURL, ECRCRED) {
                     sh ' docker push ademola/devops-capstone'
                     }
                     
