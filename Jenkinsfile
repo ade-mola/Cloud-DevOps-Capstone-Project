@@ -17,7 +17,7 @@ pipeline {
         stage('Building Image') {
             steps {
                 script {
-                    sh 'docker build --tag=ademola/devops-capstone:v2 .'
+                    sh 'docker build --tag=ademola/devops-capstone .'
 
                 }
             }
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
-                    sh ' docker push ademola/devops-capstone:v2'
+                    sh ' docker push ademola/devops-capstone'
                     }
                     
                 }
@@ -47,16 +47,16 @@ pipeline {
             }
         }
 
-        stage('Set Image Deployment') {
-            steps {
-                script {
-                    withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
-                    // kubectl set image deployment <deployment> <container>=<image> --record
-                    sh 'kubectl set image deployment devops-capstone-deployment devops-capstone=ademola/devops-capstone:v2 --record'
-                    }
-                }
-            }
-        }
+        // stage('Set Image Deployment') {
+        //     steps {
+        //         script {
+        //             withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
+        //             // kubectl set image deployment <deployment> <container>=<image> --record
+        //             sh 'kubectl set image deployment devops-capstone-deployment devops-capstone=ademola/devops-capstone:v2 --record'
+        //             }
+        //         }
+        //     }
+        // }
 
     }
 }
