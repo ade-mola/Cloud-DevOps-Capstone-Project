@@ -20,7 +20,7 @@ spec:
   selector:
     matchLabels:
       app: capstone-app
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
@@ -38,4 +38,3 @@ spec:
     rollingUpdate:
       maxUnavailable: 25%
       maxSurge: 25%
-  minReadySeconds: 10
