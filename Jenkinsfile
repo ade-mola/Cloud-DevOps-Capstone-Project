@@ -26,7 +26,7 @@ pipeline {
         stage('Deploy Image') {
             steps {
                 script {
-                    withDockerRegistry('', registryCredential) {
+                    withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
                     sh ' docker push ademola/devops-capstone'
                     }
                     
