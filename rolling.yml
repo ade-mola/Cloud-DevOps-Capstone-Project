@@ -28,11 +28,18 @@ spec:
     spec:
       containers:
         - name: devops-capstone
-          image: ademola/devops-capstone:v2
+          image: ademola/devops-capstone:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
               protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 80
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              successThreshold: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
