@@ -39,7 +39,7 @@ pipeline {
                 script {
                     withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
                     // kubectl set image deployment <deployment> <container>=<image> --record
-                    sh 'kubectl set image deployment rolling devops-capstone=ademola/devops-capstone:v2 --record'
+                    sh 'kubectl set image deployment devops-capstone-deployment devops-capstone=ademola/devops-capstone:v2 --record'
                     }
                 }
             }
