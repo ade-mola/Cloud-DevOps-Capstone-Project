@@ -34,6 +34,17 @@ pipeline {
             }
         }
 
+        stage('Set Image Deployment') {
+            steps {
+                script {
+                    withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
+                    // kubectl set image deployment <deployment> <container>=<image> --record
+                    sh 'kubectl set image deployment rolling devops-capstone=ademola/devops-capstone:v2 --record'
+                    }
+                }
+            }
+        }
+
         stage ('Deploy Clusters with Rolling Strategy') {
             steps {
                script {
