@@ -1,9 +1,0 @@
-Click
-Flask
-itsdangerous
-Jinja2
-MarkupSafe
-pytz
-six
-Werkzeug
-pylint
