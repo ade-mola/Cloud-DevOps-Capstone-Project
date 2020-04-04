@@ -52,7 +52,8 @@ pipeline {
                    // Latest
                    sh "aws eks --region us-east-2 update-kubeconfig --name devops-cluster"
                    sh "kubectl apply -f eks-templates/aws-auth.yml"
-                   sh 'kubectl apply -f rolling.yml'
+                   s//h 'kubectl apply -f rolling.yml'
+                   sh 'kubectl replace -f rolling.yml'
                   }
                }
             }
